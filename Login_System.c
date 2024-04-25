@@ -52,6 +52,25 @@ typedef struct
 }Users_In_System;
 
 
+typedef struct
+{
+    int Year;
+    int Month;
+    int Day;
+
+}Date;
+
+typedef struct
+{
+    Date MassageDate;
+    char MassageHeader[30];
+    char MassageInfo[150];
+    User Sender;
+    User Reciver;
+    bool IsRead;
+
+}Massage;
+
 //system Functions
 
 void Login(User* user);//done
@@ -871,7 +890,7 @@ void CheckActivity() {
 }
 
 
-void ViewSystem()
+void ViewSystem(User* user)
 {
 
     printf("1:Send Massage\n2:View Inbox\n3:Send Friend Request\n4:Unfollow SomeOne\n");
@@ -881,13 +900,13 @@ void ViewSystem()
     switch (choice)
     {
     case 1:
-        SendMassageToUsers();
+        //SendMassageToUsers();
     case 2:
-        ViewInbox();
+        //ViewInbox();
     case 3:
-        SendFriendRequest();
+        //SendFriendRequest();
     case 4:
-        Unfollow();
+        //Unfollow();
     default:
         printf("Invalid Choice!!!1");
     }
@@ -901,3 +920,4 @@ void ViewSystem()
 3:send friend requests
 4:unfollow someone
 5:all of this would be in a viewSystem function- where you could press through the settings function!
+*/
