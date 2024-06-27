@@ -3,37 +3,43 @@
 #include <stdlib.h>
 #include <time.h>
 #include <string.h>
-#include <ctype.h> // Include ctype.h for isalpha and islower/isupper functions
-#include <conio.h>
+#include <ctype.h>
+#include <math.h>
 
-#define SHIFT 3 // Define the shift value for encryption and decryption
+#define VIGENERE_KEY "MYSECRETKEY"
+
 #define PASSWORD_FILE "password.txt"
-#define FILE_NAME "users.txt"
+
+#define FILE_NAME "users_pass.txt"
+
 #define Max_Users_In_System 150
-#define TIMEOUT_SECONDS 10 // Timeout duration in seconds
+
+#define TIMEOUT_SECONDS 10
+
+#define PASSWORD_LENGTH 12
+
+#define MIN_PASSWORD_LENGTH 10
+
+#define SHIFT 3
 
 
-bool isLoggedIn = false; // Global variable to track login state
+bool isLoggedIn = false;
 
 int loginAttempts = 0;
-
-//need to add the fucntion that the user could change the details if their are wrong!
 
 typedef struct
 {
     int YearOfBirth;
     int MonthOfBirth;
     int DayOfBirth;
-
-}BirthDetails;
+} BirthDetails;
 
 typedef struct
 {
     int zipCode;
     char country[30];
     char city[30];
-
-}LocationDetails;
+} LocationDetails;
 
 typedef struct
 {
@@ -42,186 +48,101 @@ typedef struct
     BirthDetails AgeInfo;
     LocationDetails LocationInfo;
     char Email[40];
-
-}User;
+} User;
 
 typedef struct
 {
     User users[Max_Users_In_System];
-
-}Users_In_System;
-
+} Users_In_System;
 
 typedef struct
 {
     int Year;
     int Month;
     int Day;
+} Date;
 
-}Date;
 
-typedef struct
+//######################------START OF FUNCTION DEFENITION--------##############################
+
+
+void DisplaySystemOption(User *user);
+
+bool isValidPassword(const char *password);
+
+void PasswordLevel(const char *password);
+
+bool IsValidUserName(const char *username);
+
+bool isValidMonth(int month);
+
+bool isValidDayOfBirth(int day, int month, int year);
+
+bool isValidYear(int year);
+
+bool isValidEmail(const char *email);
+
+void ViewUserDetails(const User *user);
+
+bool IsExistInSystem(const char *username, const char *password);
+
+int Register();
+
+void Login();
+
+
+//-------------END OF BASIC VALIDATION FUNCTIONS-------------//
+
+
+void MovePasswordIfLeak(char* password);
+
+void StorePassword(char *website, char *password);
+
+bool IsWebsiteReal(char* website);
+
+void HideFile(FILE* file);
+
+char* OfferStrongPassword();
+
+//void UserOption(char *username , char *password);
+
+//void InsertNewPassword(char *username, char *password);
+
+void DeleteAccount(char *username, char *password);
+
+//void ViewPasswords(char *username,char *password);
+
+unsigned long HashPassword(const char *str);
+
+char* encrypt_password(const char* password);
+
+char* decrypt_password(const char* encrypted_password);
+
+char* add_salt_encryption(char *passwordToBeSalted);
+
+//#####################-----END OF FUNCTION DEFENITION------################################
+
+
+int main()
 {
-    Date MassageDate;
-    char MassageHeader[30];
-    char MassageInfo[150];
-    User Sender;
-    User Reciver;
-    bool IsRead;
+    User newUser; // Create a new user object
+    DisplaySystemOption(&newUser);
 
-}Massage;
-
-//system Functions
-
-void Login(User* user);//done
-
-int Register(User *user);//done
-
-bool IsExistInSystem(const char *username, const char *password);//done
-
-void DeleteAccount(const char *username, const char *password);//done-but it dont work
-
-void ChangePassword(const char *username, const char *oldPassword, const char *newPassword);//done-but it dont work
-
-void Logout();//done
-
-void Unfollow();
-//end of system functions
+    if(isLoggedIn)
+    {
+        UserOption(newUser.name,newUser.password);
+    }
 
 
-//Display Details Functions
-
-void ViewSystem(User* user);
-
-void ViewSettings(User* user);//almost done but need to clear the screen before diplay the settings!
-
-void ViewInbox();
-
-void ViewUserDetails(const User *user);//done
-
-void SendDetailsUsingEmail(User *user);//did not find a way yet-so wait till the end of the project
-
-void MultiLanguegeSupport(); // maybe later
-
-void Privacy_Policy();//done
-
-void DisplaySystemOption();//done
-
-//end Of display details fincions
-
-
-//Secuiry Functions
-
-void CheckActivity(); //done- nut need to be fixed because it dont work
-
-bool ForgetPassword();//dont know it do it because i dont have another way to verify the identity of the user
-
-void AccountLockOut();//done
-
-void SendVarificationEmail();//still dont figure out how to send emails
-
-bool IsVarificationCorrect();//still cant be done
-
-void EncryptPassword(char *plaintext, char *ciphertext); // done , but dont use it-maye in the future
-
-void DecryptPassword(char *ciphertext, char *plaintext); // done, but dont use it- maybe in the future
-
-bool IsPasswordStrong(const char *password);//done
-
-void PasswordLevel(const char *password);//done
-
-bool isValidPassword(const char *password);//done
-
-bool IsValidUserName();//done
-
-bool isValidMonth();//done
-
-bool isValidDayOfBirth();//done
-
-bool isValidYear();//done
-
-bool isValidEmail();//done
-
-bool IsWithoutDuplicateDetails();//should expand more
-
-//end of security functions
-
-//user interaction functions
-
-void SendFriendRequest();
-
-void SendMassageToUsers();
-
-//end of user interaction functions
-
-
-int main() {
-
-
-    User newUser;  // Create a new user object
-
-     DisplaySystemOption(&newUser);
-
-    // Call the Register function to save user information
-
-
-    return 0;
 }
 
 
-void Privacy_Policy() {
-    // Clear the screen
-    printf("\033[2J\033[1;1H");
-
-    // Define the content of the Privacy Policy
-    char* policy =
-        "***************************************************\n"
-        "*                Privacy Policy                   *\n"
-        "***************************************************\n"
-        "\n"
-        "Welcome to our Login-Register System!\n"
-        "\n"
-        "This system is designed to provide a secure platform\n"
-        "for user authentication and registration. Below are\n"
-        "the rules and guidelines:\n"
-        "\n"
-        "1. User data such as usernames, passwords, and\n"
-        "   personal information will be stored securely.\n"
-        "\n"
-        "2. Users are responsible for maintaining the\n"
-        "   confidentiality of their login credentials.\n"
-        "\n"
-        "3. Unauthorized access or misuse of this system is\n"
-        "   strictly prohibited.\n"
-        "\n"
-        "4. Any suspicious activity should be reported\n"
-        "   immediately to the system administrators.\n"
-        "\n"
-        "Thank you for using our system!\n"
-        "\n";
-
-    // Calculate the number of newlines in the policy
-    int num_lines = 0;
-    for (int i = 0; policy[i] != '\0'; i++) {
-        if (policy[i] == '\n') {
-            num_lines++;
-        }
-    }
-
-    // Determine the number of lines to center the content
-    int start_line = (25 - num_lines) / 2;
-
-    // Print newlines to center the content vertically
-    for (int i = 0; i < start_line; i++) {
-        printf("\n");
-    }
-
-    // Print the Privacy Policy content
-    printf("%s", policy);
-}
+//#########-------------- START OF FUNCTION IMPLEMENTION-------------------##################################
 
 
-void DisplaySystemOption(User *user) {
+
+void DisplaySystemOption(User *user)
+{
     printf("\t\t\t\t\t\t******************\n");
     printf("\t\t\t\t\t\t***LOGIN-SYSTEM***\n");
     printf("\t\t\t\t\t\t******************\n");
@@ -236,34 +157,39 @@ void DisplaySystemOption(User *user) {
 
     printf("\t\t\t\t\t\t   Your Choice:");
     int x;
-    scanf("%d",&x);
+    scanf("%d", &x);
 
-    switch(x) {
-        case 1:
-            Register(user); // Calls the Register function to register a new user
-            break;
-        case 2:
-            Login(user); // Calls the Login function to perform user login
-            break;
-        case 3:
-            Privacy_Policy(); // Calls the Privacy_Policy function to display the privacy policy
-            break;
-        default:
-            printf("\t\t\t\t\t  Invalid Choice try again later\n");
+    switch (x)
+    {
+    case 1:
+        Register(); // Calls the Register function to register a new user
+        break;
+    case 2:
+        Login(); // Calls the Login function to perform user login
+        break;
+    case 3:
+        // Privacy_Policy(); // Calls the Privacy_Policy function to display the privacy policy
+        break;
+    default:
+        printf("\t\t\t\t\t  Invalid Choice try again later\n");
     }
 }
 
-
-bool isValidPassword(const char *password) {
+bool isValidPassword(const char *password)
+{
     int length = strlen(password);
     bool hasLetter = false;
     bool hasDigit = false;
 
     // Check each character in the password
-    for (int i = 0; i < length; i++) {
-        if (isalpha(password[i])) {
+    for (int i = 0; i < length; i++)
+    {
+        if (isalpha(password[i]))
+        {
             hasLetter = true;
-        } else if (isdigit(password[i])) {
+        }
+        else if (isdigit(password[i]))
+        {
             hasDigit = true;
         }
     }
@@ -272,32 +198,8 @@ bool isValidPassword(const char *password) {
     return length >= 8 && length <= 30 && hasLetter && hasDigit;
 }
 
-
-bool IsPasswordStrong(const char *password) {// Do not use this , need to check what to do with this
-    int length = strlen(password);
-    bool hasUpperCase = false;
-    bool hasLowerCase = false;
-    bool hasDigit = false;
-    bool hasSpecialChar = false;
-
-    for (int i = 0; i < length; i++) {
-        if (isupper(password[i])) {
-            hasUpperCase = true;
-        } else if (islower(password[i])) {
-            hasLowerCase = true;
-        } else if (isdigit(password[i])) {
-            hasDigit = true;
-        } else {
-            hasSpecialChar = true;
-        }
-    }
-
-    // Check if password meets strong criteria
-    return hasUpperCase && hasLowerCase && hasDigit && hasSpecialChar;
-}
-
-
-void PasswordLevel(const char *password) {
+void PasswordLevel(const char *password)
+{
     int length = strlen(password);
     bool hasLowerCase = false;
     bool hasUpperCase = false;
@@ -305,14 +207,22 @@ void PasswordLevel(const char *password) {
     bool hasSpecialChar = false;
 
     // Check each character in the password
-    for (int i = 0; i < length; i++) {
-        if (islower(password[i])) {
+    for (int i = 0; i < length; i++)
+    {
+        if (islower(password[i]))
+        {
             hasLowerCase = true;
-        } else if (isupper(password[i])) {
+        }
+        else if (isupper(password[i]))
+        {
             hasUpperCase = true;
-        } else if (isdigit(password[i])) {
+        }
+        else if (isdigit(password[i]))
+        {
             hasDigit = true;
-        } else if (!isalnum(password[i])) {
+        }
+        else if (!isalnum(password[i]))
+        {
             hasSpecialChar = true;
         }
     }
@@ -320,19 +230,26 @@ void PasswordLevel(const char *password) {
     int points = 0;
 
     // Assign points based on password length
-    if (length >= 8 && length <= 15) {
+    if (length >= 8 && length <= 15)
+    {
         points += 4;
-    } else if (length >= 16 && length <= 23) {
+    }
+    else if (length >= 16 && length <= 23)
+    {
         points += 7;
-    } else if (length >= 24 && length <= 30) {
+    }
+    else if (length >= 24 && length <= 30)
+    {
         points += 10;
     }
 
     // Assign points based on presence of special characters and capital letters
-    if (hasSpecialChar) {
+    if (hasSpecialChar)
+    {
         points += 5;
     }
-    if (hasUpperCase) {
+    if (hasUpperCase)
+    {
         points += 5;
     }
 
@@ -340,65 +257,76 @@ void PasswordLevel(const char *password) {
     points /= 2;
 
     // Print the password level based on the points
-    if (points >= 9) {
+    if (points >= 9)
+    {
         printf("Strong password.\n");
-    } else if (points >= 6) {
+    }
+    else if (points >= 6)
+    {
         printf("Good password.\n");
-    } else {
+    }
+    else
+    {
         printf("Weak password.\n");
     }
 }
 
-
-bool IsValidUserName(const char *username) {
+bool IsValidUserName(const char *username)
+{
     int length = strlen(username);
     return length > 0 && length <= 30; // Username must not be empty and not exceed 30 characters
 }
 
-
-bool isValidMonth(int month) {
+bool isValidMonth(int month)
+{
     return month >= 1 && month <= 12; // Month must be between 1 and 12
 }
 
-
-bool isValidDayOfBirth(int day, int month, int year) {
+bool isValidDayOfBirth(int day, int month, int year)
+{
     // Basic validation for day of birth based on the month and year (leap year not considered here)
-    if (day < 1 || month < 1 || month > 12) {
+    if (day < 1 || month < 1 || month > 12)
+    {
         return false;
     }
     int daysInMonth[] = {31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
-    if (month == 2) {
+    if (month == 2)
+    {
         // Check for February (assuming non-leap year)
-        if (year % 4 == 0) {
+        if (year % 4 == 0)
+        {
             daysInMonth[1] = 29; // Leap year
         }
     }
     return day >= 1 && day <= daysInMonth[month - 1];
 }
 
-
-bool isValidYear(int year) {
+bool isValidYear(int year)
+{
     return year >= 1900 && year <= 2023; // Year must be between 1900 and 2023
 }
 
-
-bool isValidEmail(const char *email) {
+bool isValidEmail(const char *email)
+{
     int length = strlen(email);
     // Very basic email validation: must contain '@' and at least one '.' after '@'
     bool hasAtSymbol = false;
-    for (int i = 0; i < length; i++) {
-        if (email[i] == '@') {
+    for (int i = 0; i < length; i++)
+    {
+        if (email[i] == '@')
+        {
             hasAtSymbol = true;
         }
-        if (hasAtSymbol && email[i] == '.') {
+        if (hasAtSymbol && email[i] == '.')
+        {
             return true;
         }
     }
     return false;
 }
 
-
-void ViewUserDetails(const User *user) {
+void ViewUserDetails(const User *user)
+{
     printf("\nUser Details:\n");
     printf("Name: %s\n", user->name);
     printf("Date of Birth: %d/%d/%d\n", user->AgeInfo.DayOfBirth, user->AgeInfo.MonthOfBirth, user->AgeInfo.YearOfBirth);
@@ -406,10 +334,11 @@ void ViewUserDetails(const User *user) {
     printf("Email: %s\n", user->Email);
 }
 
-
-bool IsExistInSystem(const char *username, const char *password) {
+bool IsExistInSystem(const char *username, const char *password)
+{
     FILE *file = fopen(FILE_NAME, "r");
-    if (file == NULL) {
+    if (file == NULL)
+    {
         printf("Error opening file.\n");
         return false;
     }
@@ -417,18 +346,23 @@ bool IsExistInSystem(const char *username, const char *password) {
     char line[100];
     bool found = false;
 
-    while (fgets(line, sizeof(line), file) != NULL) {
-        if (strstr(line, "Name: ") == line) {
+    while (fgets(line, sizeof(line), file) != NULL)
+    {
+        if (strstr(line, "Name: ") == line)
+        {
             char *name = line + strlen("Name: ");
             strtok(name, "\n"); // Remove newline character
 
-            if (strcmp(name, username) == 0) {
+            if (strcmp(name, username) == 0)
+            {
                 // Found matching username, now check password
-                if (fgets(line, sizeof(line), file) != NULL && strstr(line, "Password: ") == line) {
+                if (fgets(line, sizeof(line), file) != NULL && strstr(line, "Password: ") == line)
+                {
                     char *storedPassword = line + strlen("Password: ");
                     strtok(storedPassword, "\n"); // Remove newline character
 
-                    if (strcmp(storedPassword, password) == 0) {
+                    if (strcmp(storedPassword, password) == 0)
+                    {
                         found = true;
                         break;
                     }
@@ -441,30 +375,31 @@ bool IsExistInSystem(const char *username, const char *password) {
     return found;
 }
 
-
-int Register(User *user) {
-
-
-    FILE *file = fopen(FILE_NAME, "a+"); // Open file for reading and appending
+int Register()
+{
+    FILE *file = fopen(FILE_NAME, "a+");
     if (file == NULL) {
         printf("Error opening file!\n");
         return 1;
     }
 
+    char username[30];
+    char password[31];
+    char email[40];
+    int year, month, day;
+    int zipCode;
+    char country[30];
+    char city[30];
     bool isValidInput = false;
 
     while (!isValidInput) {
-        // Get username
         printf("Write Name: ");
-        scanf("%s", user->name);
+        scanf("%s", username);
 
-        // Get password
-        char password[31];
         printf("Write Password (8-30 characters, must contain letters and numbers): ");
         scanf("%s", password);
 
-        // Check if user exists
-        if (IsExistInSystem(user->name, password)) {
+        if (IsExistInSystem(username, password)) {
             printf("User already exists in the system. Do you want to log in?\n");
             printf("1: Yes\n");
             printf("2: No\n");
@@ -473,9 +408,7 @@ int Register(User *user) {
             scanf("%d", &choice);
 
             if (choice == 1) {
-                // Implement Login function here
-                // Login(user);
-                printf("Login function placeholder.\n");
+                Login();
                 fclose(file);
                 return 2;
             } else {
@@ -484,104 +417,92 @@ int Register(User *user) {
             }
         }
 
-        if (!IsValidUserName(user->name)) {
+        if (!IsValidUserName(username)) {
             printf("Invalid username, please try again.\n");
         } else if (!isValidPassword(password)) {
             printf("Invalid password, please try again.\n");
         } else {
-            isValidInput = true; // Valid input, exit the loop
-            fprintf(file, "Name: %s\n", user->name);
+            isValidInput = true;
+            fprintf(file, "Name: %s\n", username);
             fprintf(file, "Password: %s\n", password);
         }
     }
 
-    PasswordLevel(user->password);
+    PasswordLevel(password);
 
-
-
-    int year, month, day;
     while (true) {
         printf("Write Year of Birth: ");
-        scanf("%d", &year);
-        if (!isValidYear(year)) {
-            printf("Invalid year of birth! Please try again.\n");
-            continue; // Prompt user again for a valid year
+        if (scanf("%d", &year) == 1 && isValidYear(year)) {
+            fprintf(file, "Year of Birth: %d\n", year);
+            break;
         }
-        user->AgeInfo.YearOfBirth = year;
-        fprintf(file, "Year of Birth: %d\n", user->AgeInfo.YearOfBirth);
-        break;
+        printf("Invalid year of birth! Please try again.\n");
     }
 
     while (true) {
         printf("Write Month of Birth: ");
-        scanf("%d", &month);
-        if (!isValidMonth(month)) {
-            printf("Invalid month of birth! Please try again.\n");
-            continue; // Prompt user again for a valid month
+        if (scanf("%d", &month) == 1 && isValidMonth(month)) {
+            fprintf(file, "Month of Birth: %d\n", month);
+            break;
         }
-        user->AgeInfo.MonthOfBirth = month;
-        fprintf(file, "Month of Birth: %d\n", user->AgeInfo.MonthOfBirth);
-        break;
+        printf("Invalid month of birth! Please try again.\n");
     }
 
     while (true) {
         printf("Write Day of Birth: ");
-        scanf("%d", &day);
-        if (!isValidDayOfBirth(day, month, year)) {
-            printf("Invalid day of birth! Please try again.\n");
-            continue; // Prompt user again for a valid day
+        if (scanf("%d", &day) == 1 && isValidDayOfBirth(day, month, year)) {
+            fprintf(file, "Day of Birth: %d\n", day);
+            break;
         }
-        user->AgeInfo.DayOfBirth = day;
-        fprintf(file, "Day of Birth: %d\n", user->AgeInfo.DayOfBirth);
-        break;
+        printf("Invalid day of birth! Please try again.\n");
     }
 
     while (true) {
         printf("Write Email: ");
-        scanf("%s", user->Email);
-        if (!isValidEmail(user->Email)) {
-            printf("Invalid email format! Please try again.\n");
-            continue; // Prompt user again for a valid email
+        scanf("%s", email);
+        if (isValidEmail(email)) {
+            fprintf(file, "Email: %s\n", email);
+            break;
         }
-        fprintf(file, "Email: %s\n", user->Email);
-        break;
+        printf("Invalid email format! Please try again.\n");
     }
 
     printf("Write Zip Code: ");
-    scanf("%d", &user->LocationInfo.zipCode);
-    fprintf(file, "Zip Code: %d\n", user->LocationInfo.zipCode);
+    scanf("%d", &zipCode);
+    fprintf(file, "Zip Code: %d\n", zipCode);
 
     printf("Write Country: ");
-    scanf("%s", user->LocationInfo.country);
-    fprintf(file, "Country: %s\n", user->LocationInfo.country);
+    scanf("%s", country);
+    fprintf(file, "Country: %s\n", country);
 
     printf("Write City: ");
-    scanf("%s", user->LocationInfo.city);
-    fprintf(file, "City: %s\n", user->LocationInfo.city);
+    scanf("%s", city);
+    fprintf(file, "City: %s\n", city);
 
     fprintf(file, "---------------------------------\n");
     fclose(file);
     printf("User registered successfully!\n");
 
-
     int choice_see;
-    printf("would you like to see your details: 1:yes 2:no\n");
-    scanf("%d",&choice_see);
-    if(choice_see==1)
-    {
-        ViewUserDetails(user);
+    printf("Would you like to see your details: 1:yes 2:no\n");
+    scanf("%d", &choice_see);
+    if (choice_see == 1) {
+        ViewUserDetails(username);
     }
 
     return 0;
 }
 
-
-void Login(User *user) {
+void Login()
+{
     char username[30];
     char password[31];
 
     printf("Enter Username: ");
-    scanf("%s", username);
+    if (scanf("%29s", username) != 1) {
+        printf("Error reading username.\n");
+        return;
+    }
 
     FILE *file = fopen(FILE_NAME, "r");
     if (file == NULL) {
@@ -593,9 +514,9 @@ void Login(User *user) {
     char line[100];
 
     while (fgets(line, sizeof(line), file) != NULL) {
-        if (strstr(line, "Name: ") == line) {
-            char *name = line + strlen("Name: ");
-            strtok(name, "\n"); // Remove newline character
+        if (strncmp(line, "Name: ", 6) == 0) {
+            char *name = line + 6;
+            name[strcspn(name, "\n")] = '\0'; // Remove newline character
             if (strcmp(name, username) == 0) {
                 found = 1;
                 break;
@@ -609,20 +530,22 @@ void Login(User *user) {
         return;
     }
 
-    // Check the password
-    if (fgets(line, sizeof(line), file) != NULL && strstr(line, "Password: ") == line) {
-        char *storedPassword = line + strlen("Password: ");
-        strtok(storedPassword, "\n"); // Remove newline character
+    if (fgets(line, sizeof(line), file) != NULL && strncmp(line, "Password: ", 10) == 0) {
+        char *storedPassword = line + 10;
+        storedPassword[strcspn(storedPassword, "\n")] = '\0'; // Remove newline character
 
         while (loginAttempts < 3) {
             printf("Enter Password: ");
-            scanf("%s", password);
+            if (scanf("%30s", password) != 1) {
+                printf("Error reading password.\n");
+                continue;
+            }
 
             if (strcmp(storedPassword, password) == 0) {
                 printf("User successfully logged in.\n");
-                loginAttempts = 0; // Reset login attempts on successful login
-                ViewSettings(user);
+                loginAttempts = 0;
                 fclose(file);
+                isLoggedIn = true;
                 return;
             } else {
                 printf("Incorrect password. Please try again.\n");
@@ -630,7 +553,6 @@ void Login(User *user) {
             }
         }
 
-        // Account lockout
         printf("Too many incorrect login attempts. Account locked.\n");
         fclose(file);
         exit(EXIT_FAILURE);
@@ -639,285 +561,288 @@ void Login(User *user) {
     }
 
     fclose(file);
-
-    isLoggedIn = true;
-    printf("User logged in.\n");
-    CheckActivity(); // Start monitoring for user activity after login
-
 }
 
+char* OfferStrongPassword()
+ {
+    static char password[PASSWORD_LENGTH + 1];
+    const char lower[] = "abcdefghijklmnopqrstuvwxyz";
+    const char upper[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+    const char digits[] = "0123456789";
+    const char special[] = "!@#$%^&*()_+[]{}|;:,.<>?";
 
-void EncryptPassword(char *plaintext, char *ciphertext) {
-    char c;
-    while (*plaintext) {
-        c = *plaintext;
-        if (isalpha(c)) {
-            if (islower(c)) {
-                *ciphertext = 'a' + (c - 'a' + SHIFT) % 26;
-            } else {
-                *ciphertext = 'A' + (c - 'A' + SHIFT) % 26;
-            }
-        } else {
-            *ciphertext = c; // Non-alphabetic characters remain unchanged
+    const int lower_len = strlen(lower);
+    const int upper_len = strlen(upper);
+    const int digits_len = strlen(digits);
+    const int special_len = strlen(special);
+
+    srand(time(NULL));
+
+    int length = MIN_PASSWORD_LENGTH + rand() % (PASSWORD_LENGTH - MIN_PASSWORD_LENGTH + 1);
+
+    int i;
+    for (i = 0; i < length; i++) {
+        int category = rand() % 4;
+        switch (category) {
+            case 0:
+                password[i] = lower[rand() % lower_len];
+                break;
+            case 1:
+                password[i] = upper[rand() % upper_len];
+                break;
+            case 2:
+                password[i] = digits[rand() % digits_len];
+                break;
+            case 3:
+                password[i] = special[rand() % special_len];
+                break;
         }
-        plaintext++;
-        ciphertext++;
     }
-    *ciphertext = '\0'; // Add null terminator to end the string
+    password[length] = '\0';
+
+    return password;
 }
 
-
-void DecryptPassword(char *ciphertext, char *plaintext) {
-    char c;
-    while (*ciphertext) {
-        c = *ciphertext;
-        if (isalpha(c)) {
-            if (islower(c)) {
-                *plaintext = 'a' + (c - 'a' - SHIFT + 26) % 26;
-            } else {
-                *plaintext = 'A' + (c - 'A' - SHIFT + 26) % 26;
-            }
-        } else {
-            *plaintext = c; // Non-alphabetic characters remain unchanged
-        }
-        ciphertext++;
-        plaintext++;
-    }
-    *plaintext = '\0'; // Add null terminator to end the string
-}
-
-
-void DeleteAccount(const char *username, const char *password) {
-    FILE *file = fopen(FILE_NAME, "r");
-    if (file == NULL) {
-        printf("Error opening file.\n");
-        return;
-    }
-
-    FILE *tempFile = fopen("temp.txt", "w");
-    if (tempFile == NULL) {
-        printf("Error creating temporary file.\n");
-        fclose(file);
-        return;
-    }
-
-    char line[100];
-    bool userFound = false;
-    bool deleted = false;
-
-    while (fgets(line, sizeof(line), file) != NULL) {
-        if (strstr(line, "Name: ") == line) {
-            char *name = line + strlen("Name: ");
-            strtok(name, "\n");
-
-            if (strcmp(name, username) == 0) {
-                userFound = true;
-
-                // Check the password
-                fgets(line, sizeof(line), file); // Read the password line
-                char *storedPassword = line + strlen("Password: ");
-                strtok(storedPassword, "\n");
-
-                if (strcmp(storedPassword, password) == 0) {
-                    deleted = true;
-                    // Skip this user's details in the original file
-                    for (int i = 0; i < 5; i++) {
-                        fgets(line, sizeof(line), file);
-                    }
-                    continue; // Skip writing this user to the temp file
-                }
-            }
-        }
-        fprintf(tempFile, "%s", line); // Write non-matching lines to temp file
-    }
-
-    fclose(file);
-    fclose(tempFile);
-
-    if (userFound && deleted) {
-        remove(FILE_NAME); // Remove the original file
-        rename("temp.txt", FILE_NAME); // Rename temp file to original file
-        printf("Account deleted successfully.\n");
-    } else if (userFound) {
-        printf("Incorrect password. Account deletion failed.\n");
-        remove("temp.txt"); // Remove the temp file
-    } else {
-        printf("User not found.\n");
-        remove("temp.txt"); // Remove the temp file
-    }
-}
-
-
-void ChangePassword(const char *username, const char *oldPassword, const char *newPassword) {
-    FILE *file = fopen(FILE_NAME, "r");
-    if (file == NULL) {
-        printf("Error opening file.\n");
-        return;
-    }
-
-    FILE *tempFile = fopen("temp.txt", "w");
-    if (tempFile == NULL) {
-        printf("Error creating temporary file.\n");
-        fclose(file);
-        return;
-    }
-
-    char line[100];
-    bool userFound = false;
-    bool passwordChanged = false;
-
-    while (fgets(line, sizeof(line), file) != NULL) {
-        if (strstr(line, "Name: ") == line) {
-            char *name = line + strlen("Name: ");
-            strtok(name, "\n");
-
-            if (strcmp(name, username) == 0) {
-                userFound = true;
-
-                // Check the password
-                fgets(line, sizeof(line), file); // Read the password line
-                char *storedPassword = line + strlen("Password: ");
-                strtok(storedPassword, "\n");
-
-                if (strcmp(storedPassword, oldPassword) == 0) {
-                    passwordChanged = true;
-                    // Write updated password to temp file
-                    fprintf(tempFile, "Name: %s\n", username);
-                    fprintf(tempFile, "Password: %s\n", newPassword);
-
-                    // Copy the remaining user details from the original file to temp file
-                    for (int i = 0; i < 4; i++) {
-                        fgets(line, sizeof(line), file);
-                        fprintf(tempFile, "%s", line);
-                    }
-                    continue; // Skip writing old user details to the temp file
-                }
-            }
-        }
-        fprintf(tempFile, "%s", line); // Write non-matching lines to temp file
-    }
-
-    fclose(file);
-    fclose(tempFile);
-
-    if (userFound && passwordChanged) {
-        remove(FILE_NAME); // Remove the original file
-        rename("temp.txt", FILE_NAME); // Rename temp file to original file
-        printf("Password changed successfully.\n");
-    } else if (userFound) {
-        printf("Incorrect password. Password change failed.\n");
-        remove("temp.txt"); // Remove the temp file
-    } else {
-        printf("User not found.\n");
-        remove("temp.txt"); // Remove the temp file
-    }
-}
-
-
-void ViewSettings(User *user) {
-    printf("\nSettings Menu\n");
-    printf("1. Delete Account\n");
-    printf("2. Change Password\n");
-    printf("3. Send Message\n");
-    printf("4. Log Out\n");
-
-    int choice;
-    printf("Enter your choice: ");
-    scanf("%d", &choice);
-
-    switch (choice) {
-        case 1:
-            DeleteAccount(user->name, user->password); // Call DeleteAccount with username and password
-            break;
-        case 2: {
-            char newPassword[31];
-            printf("Enter new password: ");
-            scanf("%s", newPassword);
-            ChangePassword(user->name, user->password, newPassword); // Call ChangePassword with username, old password, and new password
-            break;
-        }
-        case 3:
-            // SendMassageToUsers(username);
-            break;
-        case 4:
-            printf("Logging out...\n");
-            sleep(2);
-            Logout();
-            break;
-        default:
-            printf("Invalid choice.\n");
-            break;
-    }
-}
-
-
-void Logout() {
-    isLoggedIn = false;
-    printf("User logged out due to inactivity.\n");
-    DisplaySystemOption(NULL); // Redirect to system option display after logout
-}
-
-
-void CheckActivity() {
-    time_t startTime = time(NULL);
-
-    while (isLoggedIn) {
-        // Calculate elapsed time since last activity check
-        time_t currentTime = time(NULL);
-        if (currentTime - startTime >= TIMEOUT_SECONDS) {
-            Logout(); // Trigger logout if timeout is reached
-            break;
-        }
-
-        // Check for user input using getchar() (waits for Enter key press)
-        printf("Press any key (1, 2, 3, 4) to reset the timer: ");
-        int ch = getchar();
-
-        // Consume any extra characters in the input buffer (clear stdin)
-        while (getchar() != '\n');
-
-        if (ch != EOF && (ch == '1' || ch == '2' || ch == '3' || ch == '4')) {
-            startTime = time(NULL); // Reset timer on valid key press
-            printf("Button %c pressed. Activity detected. Timer reset.\n", ch);
-        } else {
-            printf("Invalid key pressed. Logging out due to inactivity.\n");
-            Logout(); // Logout on invalid key press
-        }
-
-        // Sleep for 1 second (simulating continuous activity check loop)
-        sleep(1);
-    }
-}
-
-
-void ViewSystem(User* user)
+void UserOption(char *username,char *password)
 {
-
-    printf("1:Send Massage\n2:View Inbox\n3:Send Friend Request\n4:Unfollow SomeOne\n");
     int choice;
-    scanf("%d",&choice);
+    printf("Insert Your Option: 1: Insert New Password , 2: See My Passwords, 3: Delete account\n");
+    scanf("%d", &choice);
 
     switch (choice)
     {
     case 1:
-        //SendMassageToUsers();
+        InsertNewPassword(username,password);
+        break;
     case 2:
-        //ViewInbox();
+        ViewPasswords(username,password);
+        break;
     case 3:
-        //SendFriendRequest();
-    case 4:
-        //Unfollow();
+        DeleteAccount(username, password);
+        break;
     default:
-        printf("Invalid Choice!!!1");
+        printf("Invalid choice, try again later\n");
     }
 }
 
+unsigned long HashPassword(const char *str)
+{
+    unsigned long hash = 5381;
+    int c;
 
-/*things left to finish!!!
+    while ((c = *str++)) {
+        hash = ((hash << 5) + hash) + c; // hash * 33 + c
+    }
 
-1:send massage to users
-2:see inbox(friends requests and massages)
-3:send friend requests
-4:unfollow someone
-5:all of this would be in a viewSystem function- where you could press through the settings function!
-*/
+    return hash;
+}
+
+void DeleteAccount(char *username, char *password)
+{
+    FILE *file = fopen(FILE_NAME, "r");
+    FILE *tempFile = fopen("temp.txt", "w");
+    char line[100];
+    bool skipUser = false;
+
+    if (file == NULL || tempFile == NULL) {
+        printf("Error opening file!\n");
+        return;
+    }
+
+    while (fgets(line, sizeof(line), file) != NULL) {
+        if (strstr(line, "Name: ") == line) {
+            char *name = line + strlen("Name: ");
+            strtok(name, "\n"); // Remove newline character
+
+            if (strcmp(name, username) == 0) {
+                skipUser = true; // Skip lines until the next user
+                continue;
+            }
+        }
+
+        if (!skipUser) {
+            fputs(line, tempFile);
+        } else if (strstr(line, "---------------------------------") == line) {
+            skipUser = false; // Stop skipping lines after user block ends
+        }
+    }
+
+    fclose(file);
+    fclose(tempFile);
+
+    // Replace the old file with the new file
+    remove(FILE_NAME);
+    rename("temp.txt", FILE_NAME);
+
+    printf("Account and associated data deleted successfully.\n");
+}
+
+char* encrypt_password(const char* password)
+{
+    char key = 'K'; // Simple XOR key for demonstration
+    size_t len = strlen(password);
+    char* encrypted = (char*)malloc(len + 1);
+    for (size_t i = 0; i < len; ++i) {
+        encrypted[i] = password[i] ^ key;
+    }
+    encrypted[len] = '\0';
+    return encrypted;
+}
+
+char* decrypt_password(const char* encrypted_password)
+{
+    char key = 'K'; // Same XOR key used for encryption
+    size_t len = strlen(encrypted_password);
+    char* decrypted = (char*)malloc(len + 1); // Allocate memory for decrypted password
+
+    for (size_t i = 0; i < len; ++i) {
+        decrypted[i] = encrypted_password[i] ^ key; // XOR decryption
+    }
+    decrypted[len] = '\0'; // Null-terminate the string
+
+    return decrypted;
+}
+
+void InsertNewPassword(char *username, char *password)
+{
+    char website[30];
+    char new_password[30];
+    FILE *file;
+    FILE *tempFile;
+    char line[100];
+    bool userFound = false;
+
+    printf("Enter the website: ");
+    scanf("%s", website);
+
+    printf("Enter the password: ");
+    scanf("%s", new_password);
+
+    char* encrypted_password = encrypt_password(new_password);
+
+    // Open the password file in read mode
+    file = fopen(PASSWORD_FILE, "r");
+    if (file == NULL) {
+        // If the file does not exist, create it and write the new password
+        file = fopen(PASSWORD_FILE, "a");
+        if (file == NULL) {
+            printf("Error opening file!\n");
+            return;
+        }
+        fprintf(file, "Name: %s\n", username);
+        fprintf(file, "Passwords:\n");
+        fprintf(file, "Website: %s, Password: %s\n", website, encrypted_password);
+        fprintf(file, "---------------------------------\n");
+        fclose(file);
+        printf("Password saved successfully!\n");
+        free(encrypted_password);
+        return;
+    }
+
+    // Create a temporary file to store the updated content
+    tempFile = fopen("temp.txt", "w");
+    if (tempFile == NULL) {
+        printf("Error creating temporary file!\n");
+        fclose(file);
+        free(encrypted_password);
+        return;
+    }
+
+    // Read through the file and copy lines to the temporary file
+    while (fgets(line, sizeof(line), file) != NULL) {
+        fputs(line, tempFile);
+        if (strstr(line, "Name: ") == line) {
+            char *name = line + strlen("Name: ");
+            strtok(name, "\n"); // Remove newline character
+            if (strcmp(name, username) == 0) {
+                userFound = true;
+                // Skip "Passwords:" line
+                fgets(line, sizeof(line), file);
+                fputs(line, tempFile);
+
+                // Append the new password within the user's section
+                fprintf(tempFile, "Website: %s, Password: %s\n", website, encrypted_password);
+            }
+        }
+    }
+
+    if (!userFound) {
+        // If the user was not found, create a new section for them
+        fprintf(tempFile, "Name: %s\n", username);
+        fprintf(tempFile, "Passwords:\n");
+        fprintf(tempFile, "Website: %s, Password: %s\n", website, encrypted_password);
+        fprintf(tempFile, "---------------------------------\n");
+    }
+
+    fclose(file);
+    fclose(tempFile);
+    free(encrypted_password);
+
+    // Replace the old file with the new file
+    remove(PASSWORD_FILE);
+    rename("temp.txt", PASSWORD_FILE);
+
+    printf("Password saved successfully!\n");
+}
+
+bool IsWebsiteReal(char* website)
+{
+    char command[256];
+    // Create the ping command, limiting to 1 ping and suppressing output
+    snprintf(command, sizeof(command), "ping -c 1 %s > /dev/null 2>&1", website);
+
+    // Execute the command
+    int result = system(command);
+
+    // If result is 0, the website is reachable
+    return result == 0;
+}
+
+void ViewPasswords(char *username, const char *password)
+{
+    FILE *file = fopen(PASSWORD_FILE, "r");
+    if (file == NULL) {
+        printf("Error opening password file!\n");
+        return;
+    }
+
+    char line[100];
+    bool userFound = false;
+
+    printf("Stored Passwords:\n");
+
+    while (fgets(line, sizeof(line), file) != NULL) {
+        // Look for the user's section based on the username
+        if (strstr(line, "Name: ") == line) {
+            char *name = line + strlen("Name: ");
+            strtok(name, "\n"); // Remove newline character
+            if (strcmp(name, username) == 0) {
+                userFound = true;
+                // Skip "Passwords:" line
+                fgets(line, sizeof(line), file);
+                while (fgets(line, sizeof(line), file) != NULL && strstr(line, "---------------------------------") != line) {
+                    // Assuming passwords are stored in the format: "Website: <website>, Password: <encrypted_password>"
+                    if (strstr(line, "Website: ") == line) {
+                        char *website = strtok(line + strlen("Website: "), ",");
+                        char *enc_password = strtok(NULL, " ") + strlen("Password: ");
+                        char* decrypted_password = decrypt_password(enc_password);
+                        printf("Website: %s, Password: %s\n", website, decrypted_password);
+                        free(decrypted_password);
+                    }
+                }
+                break; // Exit loop after finding user's section
+            }
+        }
+    }
+
+    if (!userFound) {
+        printf("No passwords found for the user: %s\n", username);
+    }
+
+    fclose(file);
+}
+
+
+//##############-----------END OF FUCNTION IMPLEMENTION---------###########################
+
+
